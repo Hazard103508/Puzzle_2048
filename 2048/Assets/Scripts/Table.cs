@@ -13,6 +13,10 @@ public class Table : MonoBehaviour
     public GameObject BlocksRoot;
     public GameOver gameOver;
 
+    [Header("Sound")]
+    public AudioSource AudioBlockMerge;
+    public AudioSource AudioBackground;
+
     [Header("Prefabs")]
     public List<GameObject> Blocks;
 
@@ -69,10 +73,7 @@ public class Table : MonoBehaviour
             case LevelState.New:
                 Add_NewBlock();
                 if (Check_GameOver())
-                {
                     this.State = LevelState.GameOver;
-                    gameOver.Show();
-                }
                 else
                     this.State = LevelState.Idle;
                 break;
@@ -92,6 +93,12 @@ public class Table : MonoBehaviour
                     this.State = LevelState.New;
                 break;
             case LevelState.GameOver:
+                if (Check_Idle())
+                {
+                    AudioBackground.Stop();
+                    gameOver.Show();
+                    this.State = LevelState.None;
+                }
                 break;
             default:
                 break;
@@ -108,6 +115,8 @@ public class Table : MonoBehaviour
         lstBlocks = new List<Block>();
         ResetPoints.Invoke();
         this.State = LevelState.New;
+
+        AudioBackground.Play();
     }
 
     /// <summary>
@@ -154,7 +163,7 @@ public class Table : MonoBehaviour
     private void Add_Block(Vector2Int location, int value)
     {
         var obj = Instantiate(BlocskDic[value], BlocksRoot.transform);
-        obj.transform.localPosition = new Vector3(location.x * 2, location.y * 2);
+        obj.transform.localPosition = new Vector3(location.x * 2, location.y * 2, 0);
 
         var block = obj.GetComponent<Block>();
         block.location = location;
@@ -264,6 +273,8 @@ public class Table : MonoBehaviour
             var block1 = group.First();
             var block2 = group.Last();
 
+            bool isLastValue = block1.Value == 2048;
+
             Add_Block(block1.location, block2.Value * 2); // crea un nuevo bloque duplicando su valor
 
             Destroy(block1.gameObject); // elimina un bloque
@@ -271,6 +282,11 @@ public class Table : MonoBehaviour
 
             lstBlocks.Remove(block1);
             lstBlocks.Remove(block2);
+
+            AudioBlockMerge.Play();
+
+            if (isLastValue)
+                this.State = LevelState.GameOver;
         });
     }
     /// <summary>
@@ -311,6 +327,7 @@ public class Table : MonoBehaviour
 }
 public enum LevelState
 {
+    None,
     New,
     Idle,
     Moving,

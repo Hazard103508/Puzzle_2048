@@ -23,7 +23,7 @@ public class Block : MonoBehaviour
     private IEnumerator MoveCO(Vector2Int targetLocation)
     {
         Vector3 startingPos = transform.localPosition;
-        Vector3 finalPos = new Vector2(targetLocation.x * 2, targetLocation.y * 2);
+        Vector3 finalPos = new Vector3(targetLocation.x * 2, targetLocation.y * 2, startingPos.z);
         float elapsedTime = 0;
 
         float distance = Mathf.Abs(targetLocation.x - this.location.x) + Mathf.Abs(targetLocation.y - this.location.y);
@@ -31,10 +31,12 @@ public class Block : MonoBehaviour
 
         while (elapsedTime < time)
         {
-            transform.localPosition = Vector3.Lerp(startingPos, finalPos, (elapsedTime / time));
+            this.transform.localPosition = Vector3.Lerp(startingPos, finalPos, (elapsedTime / time));
             elapsedTime += Time.deltaTime;
             yield return null;
         }
+
+        this.transform.localPosition = finalPos; // ajuste de decimales
 
         this.state = BlockState.Idle;
         yield return null;

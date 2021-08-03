@@ -5,6 +5,7 @@ using UnityEngine;
 public class GameOver : MonoBehaviour
 {
     private CanvasGroup canvasGroup;
+    public AudioSource Audio;
 
     void Start()
     {
@@ -13,21 +14,16 @@ public class GameOver : MonoBehaviour
         
         Close();
     }
-
     public void Show()
     {
         canvasGroup.alpha = 1f;
         canvasGroup.blocksRaycasts = true;
+        Audio.Play();
     }
 
     public void Close()
     {
         canvasGroup.alpha = 0f;
         canvasGroup.blocksRaycasts = false;
-    }
-
-    public void Exit()
-    {
-        Application.Quit();
     }
 }
